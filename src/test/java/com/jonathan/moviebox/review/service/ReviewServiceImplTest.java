@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import com.jonathan.moviebox.movie.exception.MovieNotFoundException;
 import com.jonathan.moviebox.movie.model.Movie;
 import com.jonathan.moviebox.movie.repository.MovieRepository;
 import com.jonathan.moviebox.review.dto.CreateReviewDTO;
+import com.jonathan.moviebox.review.exception.ReviewNotFoundException;
 import com.jonathan.moviebox.review.model.Review;
 import com.jonathan.moviebox.review.repository.ReviewRepository;
 
@@ -40,6 +42,7 @@ public class ReviewServiceImplTest {
   private CreateReviewDTO createInvalidReviewDTO;
   private Movie movie;
   private Review review;
+  private String updatedBody;
 
   @BeforeEach
   void setup() {
@@ -54,6 +57,7 @@ public class ReviewServiceImplTest {
         .build();
 
     movie = Movie.builder()
+        .id(new ObjectId())
         .imdbId("12345")
         .title("Solar Eclipse")
         .releaseDate("2024-04-08")
@@ -67,19 +71,30 @@ public class ReviewServiceImplTest {
         .body("Highly recommended!")
         .build();
 
+    updatedBody = "Easy 10/10";
+
     Mockito.when(movieRepository.findMovieByImdbId(Mockito.anyString())).thenReturn(Optional.empty());
     Mockito.when(movieRepository.findMovieByImdbId("12345")).thenReturn(Optional.of(movie));
+
     Mockito.when(reviewRepository.insert(review)).thenReturn(review);
+    review.setId(new ObjectId());
     movie.setReviews(new ArrayList<Review>(Arrays.asList(review)));
+
+    Mockito.when(reviewRepository.findById(any(ObjectId.class))).thenReturn(Optional.empty());
+    Mockito.when(reviewRepository.findById(review.getId())).thenReturn(Optional.of(review));
     Mockito.when(movieRepository.save(movie)).thenReturn(movie);
+    Mockito.when(reviewRepository.save(review)).thenReturn(review);
   }
 
   @Test
   public void testCreateReviewAndValid() {
+    Review reviewBeforeInserted = review;
+    reviewBeforeInserted.setId(null);
+
     Review result = reviewService.createReview(createValidReviewDTO);
 
     verify(movieRepository, atLeastOnce()).findMovieByImdbId("12345");
-    verify(reviewRepository, atLeastOnce()).insert(review);
+    verify(reviewRepository, atLeastOnce()).insert(reviewBeforeInserted);
     verify(movieRepository, atLeastOnce()).save(movie);
 
     Assertions.assertEquals(result, review);
@@ -94,6 +109,40 @@ public class ReviewServiceImplTest {
     verify(movieRepository, atLeastOnce()).findMovieByImdbId("51234");
     verify(reviewRepository, never()).insert(any(Review.class));
     verify(movieRepository, never()).save(any(Movie.class));
+  }
+
+  @Test
+  public void testUpdateReviewAndFound() {
+    Review result = reviewService.updateReview(review.getId(), updatedBody);
+
+    verify(reviewRepository, atLeastOnce()).save(review);
+
+    Assertions.assertEquals(result.getBody(), updatedBody);
+  }
+
+  @Test
+  public void testUpdateReviewAndNotFound() {
+    Assertions.assertThrows(ReviewNotFoundException.class, () -> {
+      reviewService.updateReview(new ObjectId(), updatedBody);
+    });
+
+    verify(reviewRepository, never()).save(any(Review.class));
+  }
+
+  @Test
+  public void testDeleteReviewAndFound() {
+    reviewService.deleteReview(review.getId());
+
+    verify(reviewRepository, atLeastOnce()).deleteById(review.getId());
+  }
+
+  @Test
+  public void testDeleteReviewAndNotFound() {
+    Assertions.assertThrows(ReviewNotFoundException.class, () -> {
+      reviewService.deleteReview(new ObjectId());
+    });
+
+    verify(reviewRepository, never()).deleteById(any(ObjectId.class));
   }
 
 }

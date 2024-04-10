@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,6 @@ import com.jonathan.moviebox.review.model.Review;
 
 @SpringBootTest
 public class MovieServiceImplTest {
-
   @Autowired
   private MovieService movieService;
 
@@ -35,6 +35,7 @@ public class MovieServiceImplTest {
   @BeforeEach
   void setup() {
     movie = Movie.builder()
+        .id(new ObjectId())
         .imdbId("12345")
         .title("Solar Eclipse")
         .releaseDate("2024-04-08")
@@ -45,6 +46,7 @@ public class MovieServiceImplTest {
         .build();
 
     review = Review.builder()
+        .id(new ObjectId())
         .body("Highly recommended!")
         .build();
 
@@ -75,5 +77,4 @@ public class MovieServiceImplTest {
     verify(movieRepository, atLeastOnce()).findMovieByImdbId("51234");
     Assertions.assertEquals(result, Optional.empty());
   }
-
 }

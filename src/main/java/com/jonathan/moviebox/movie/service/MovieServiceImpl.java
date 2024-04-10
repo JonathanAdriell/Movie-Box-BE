@@ -11,7 +11,6 @@ import com.jonathan.moviebox.movie.repository.MovieRepository;
 
 @Service
 public class MovieServiceImpl implements MovieService {
-
   @Autowired
   private MovieRepository movieRepository;
 
@@ -24,5 +23,4 @@ public class MovieServiceImpl implements MovieService {
   public Optional<Movie> getMovieByImdbId(String id) {
     return movieRepository.findMovieByImdbId(id);
   }
-
 }

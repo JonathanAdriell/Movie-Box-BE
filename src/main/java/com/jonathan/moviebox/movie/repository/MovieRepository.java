@@ -10,7 +10,5 @@ import com.jonathan.moviebox.movie.model.Movie;
 
 @Repository
 public interface MovieRepository extends MongoRepository<Movie, ObjectId> {
-
   Optional<Movie> findMovieByImdbId(String imdbId);
-
 }

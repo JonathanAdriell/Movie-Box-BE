@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -24,7 +25,6 @@ import com.jonathan.moviebox.review.model.Review;
 
 @WebMvcTest(controllers = MovieController.class)
 public class MovieControllerTest {
-
   @Autowired
   private MockMvc mockMvc;
 
@@ -37,6 +37,7 @@ public class MovieControllerTest {
   @BeforeEach
   void setup() {
     movie = Movie.builder()
+        .id(new ObjectId())
         .imdbId("12345")
         .title("Solar Eclipse")
         .releaseDate("2024-04-08")
@@ -47,6 +48,7 @@ public class MovieControllerTest {
         .build();
 
     review = Review.builder()
+        .id(new ObjectId())
         .body("Highly recommended!")
         .build();
 
@@ -76,5 +78,4 @@ public class MovieControllerTest {
 
     verify(movieService, atLeastOnce()).getMovieByImdbId("12345");
   }
-
 }

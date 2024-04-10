@@ -11,9 +11,7 @@ import lombok.Data;
 @Data
 @Builder
 public class Review {
-
   @Id
   private ObjectId id;
   private String body;
-
 }

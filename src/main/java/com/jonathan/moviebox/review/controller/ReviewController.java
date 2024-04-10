@@ -6,31 +6,32 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.jonathan.moviebox.review.dto.CreateReviewDTO;
+import com.jonathan.moviebox.review.dto.ReviewRequest;
 import com.jonathan.moviebox.review.model.Review;
 import com.jonathan.moviebox.review.service.ReviewService;
 
 @RestController
 @RequestMapping("/api/v1/review")
 public class ReviewController {
-
   @Autowired
   private ReviewService reviewService;
 
   @PostMapping("/create")
-  public ResponseEntity<Review> createReview(@RequestBody CreateReviewDTO createReviewDTO) {
-    return new ResponseEntity<Review>(reviewService.createReview(createReviewDTO), HttpStatus.CREATED);
+  public ResponseEntity<Review> createReview(@RequestBody ReviewRequest createRequest) {
+    Review createdReview = reviewService.createReview(createRequest);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdReview);
   }
 
   @PatchMapping("/update/{id}")
-  public ResponseEntity<Review> updateReview(@PathVariable ObjectId id, @RequestBody String body) {
-    return new ResponseEntity<Review>(reviewService.updateReview(id, body), HttpStatus.OK);
+  public ResponseEntity<Review> updateReview(@PathVariable("id") ObjectId id,
+      @RequestBody ReviewRequest updateRequest) {
+    Review updatedReview = reviewService.updateReview(id, updateRequest);
+    return ResponseEntity.ok(updatedReview);
   }
 
   @DeleteMapping("/delete/{id}")
-  public ResponseEntity<Void> deleteReview(@PathVariable ObjectId id) {
+  public ResponseEntity<Void> deleteReview(@PathVariable("id") ObjectId id) {
     reviewService.deleteReview(id);
-    return new ResponseEntity<Void>(HttpStatus.valueOf(204));
+    return ResponseEntity.noContent().build();
   }
-
 }

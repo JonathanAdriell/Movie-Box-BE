@@ -5,9 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class CreateReviewDTO {
-
+public class ReviewRequest {
   private String imdbId;
   private String body;
-
 }

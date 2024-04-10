@@ -16,7 +16,6 @@ import lombok.Data;
 @Data
 @Builder
 public class Movie {
-
   @Id
   private ObjectId id;
   private String imdbId;
@@ -29,5 +28,4 @@ public class Movie {
 
   @DocumentReference
   private List<Review> reviews;
-  
 }
